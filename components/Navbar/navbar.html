@@ -1,0 +1,36 @@
+<template id="navbar-template">
+    <nav class="uk-navbar-container" uk-navbar="true">
+        <div class="uk-navbar-left">
+            <ul class="uk-navbar-nav">
+                <li class="uk-active"><a href="#">Active</a></li>
+                <li>
+                    <a href="#">Parent</a>
+                    <div class="uk-navbar-dropdown">
+                        <ul class="uk-nav uk-navbar-dropdown-nav">
+                            <li class="uk-active"><a href="#">Active</a></li>
+                            <li><a href="#">Item</a></li>
+                            <li><a href="#">Item</a></li>
+                        </ul>
+                    </div>
+                </li>
+                <li><a href="#">Item</a></li>
+            </ul>
+        </div>
+        <img class="logo" src="../../images/INP.png" alt="Logo" />
+    </nav>
+</template>
+
+<script>
+    var navbarDoc = document.currentScript.ownerDocument;
+    class Navbar extends HTMLElement {
+        constructor() {
+            super();
+
+            const template = navbarDoc.querySelector("#navbar-template");
+            const instance = template.content.cloneNode(true);
+            this.appendChild(instance);
+        }
+    }
+
+    customElements.define('nav-bar', Navbar);
+</script>

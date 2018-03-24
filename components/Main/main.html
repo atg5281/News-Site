@@ -1,0 +1,18 @@
+<template id="main-template">
+    <nav-bar></nav-bar>
+</template>
+
+<script>
+    var mainTemplateDoc = document.currentScript.ownerDocument;
+    class Main extends HTMLElement {
+        constructor() {
+            super();
+
+            const template = mainTemplateDoc.querySelector("#main-template");
+            const instance = template.content.cloneNode(true);
+            this.appendChild(instance);
+        }
+    }
+
+    customElements.define('main-site', Main);
+</script>

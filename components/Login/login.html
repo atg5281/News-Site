@@ -1,0 +1,81 @@
+<template id="login-template">
+    <div class="uk-text-center uk-grid uk-position-center">
+        <div class="uk-width-auto">
+            <div class="uk-card uk-card-default uk-card-body">
+                <form id="loginForm">
+                    <div class="uk-margin" id="invalidInput"></div>
+                    <div class="uk-margin">
+                        <div class="uk-inline uk-width-medium">
+                            <span class="uk-form-icon uk-icon" uk-icon="icon: user"></span>
+                            <input id="username" class="uk-input" type="text" placeholder="Username">
+                        </div>
+                    </div>
+                    <div class="uk-margin">
+                        <div class="uk-inline uk-width-medium">
+                            <span class="uk-form-icon uk-form-icon-flip uk-icon" uk-icon="icon: lock"></span>
+                            <input id="password" class="uk-input" type="password" placeholder="Password">
+                        </div>
+                    </div>
+                    <div class="uk-margin uk-flex">
+                        <button id="addAccount" class="uk-button uk-button-default" >Add Account</button>
+                        <button id="login" class="uk-button uk-button-default uk-margin-auto-left">Login</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</template>
+
+<template id="invalid-form-template">
+    <div class="uk-alert-danger" uk-alert>
+        <a class="uk-alert-close" uk-close></a>
+        <p>Invalid Username or Password</p>
+    </div>
+</template>
+
+<script>
+    var loginDoc = document.currentScript.ownerDocument;
+    class Login extends HTMLElement {
+        constructor() {
+            super();
+
+            const template = loginDoc.querySelector("#login-template");
+            const instance = template.content.cloneNode(true);
+            this.appendChild(instance);
+
+            $("#loginForm").on("submit", (event) => {
+                event.preventDefault();
+                const username = event.target.querySelector("#username").value;
+                const password = event.target.querySelector("#password").value;
+
+                for (var index in this.accounts) {
+                    let account = this.accounts[index];
+                    if (account.username === username && account.password === password) {
+                        var main = new Main();
+                        $(".app").append(main);
+                        this.closeLogin();
+                    } else if (index == this.accounts.length - 1) {
+                        const template = loginDoc.querySelector("#invalid-form-template");
+                        const instance = template.content.cloneNode(true);
+                        $("#invalidInput").append(instance);
+                    }
+                }
+            });
+        }
+
+        connectedCallback() {
+            fetch('accounts/accounts.json')
+                .then((response) => {
+                    response.json().then((data) => {
+                            this.accounts = data;
+                        });
+                });
+        }
+
+        closeLogin() {
+            this.remove();
+        }
+    }
+
+    customElements.define('login-page', Login);
+</script>

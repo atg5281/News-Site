@@ -1,0 +1,17 @@
+html, body{
+    height: 100%;
+    width: 100%;
+}
+
+body {
+    background-color: #bbdefb;
+    margin: 0;
+    padding: 0;
+    font-family: sans-serif;
+}
+
+nav .logo {
+    width: 190px;
+    height: 80px;
+    margin-left: auto;
+}

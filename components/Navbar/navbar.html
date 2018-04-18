@@ -1,22 +1,22 @@
 <template id="navbar-template">
     <nav class="uk-navbar-container" uk-navbar="true">
+        <img class="logo" src="images/INP.png" alt="Logo" />
         <div class="uk-navbar-left">
             <ul class="uk-navbar-nav">
-                <li class="uk-active"><a href="#">Active</a></li>
-                <li>
-                    <a href="#">Parent</a>
-                    <div class="uk-navbar-dropdown">
-                        <ul class="uk-nav uk-navbar-dropdown-nav">
-                            <li class="uk-active"><a href="#">Active</a></li>
-                            <li><a href="#">Item</a></li>
-                            <li><a href="#">Item</a></li>
-                        </ul>
-                    </div>
-                </li>
-                <li><a href="#">Item</a></li>
+                <li class="uk-active" id="filterButton"><a>Top News</a></li>
+                <li id="filterButton"><a>NFL</a></li>
+                <li id="filterButton"><a>NBA</a></li>
+                <li id="filterButton"><a>MLB</a></li>
+                <li id="filterButton"><a>NHL</a></li>
             </ul>
         </div>
-        <img class="logo" src="../../images/INP.png" alt="Logo" />
+        <div class="visit">
+            <div class="row">
+                Your last visit was on 
+            </div>
+            <div class="row" id="visitTime">
+            </div>
+        </div>
     </nav>
 </template>
 
@@ -28,7 +28,34 @@
 
             const template = navbarDoc.querySelector("#navbar-template");
             const instance = template.content.cloneNode(true);
+            
+            var oldDate = localStorage.getItem("lastVisit");
+            var newDate = new Date().toISOString();
+            localStorage.setItem("lastVisit", newDate);
+            
+            oldDate ? instance.querySelector("#visitTime").innerHTML = oldDate : instance.querySelector("#visitTime").innerHTML = newDate;
+
             this.appendChild(instance);
+
+            let buttons = document.querySelectorAll("#filterButton");
+            for (let button of buttons) {
+                $(button).bind('click', {navBar:this}, this.filterButton);
+            }
+        }
+
+        filterButton(event) {
+            var buttons = document.querySelectorAll("#filterButton");
+            $(buttons).removeClass("uk-active");
+
+            $(event.currentTarget).addClass("uk-active");
+            event.data.navBar.filter(event.target.innerHTML)
+        }
+
+        filter(feed) {
+            var newsFeed = new NewsFeed(feed);
+            $(newsFeed).addClass("uk-display-block");
+            $("main-site news-feed").remove();
+            $("main-site").append(newsFeed);
         }
     }
 

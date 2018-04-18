@@ -1,0 +1,55 @@
+<template id="article-template">
+    <article class="uk-article">
+        <h1 class="uk-article-title" id="articleHeading"><a class="uk-link-reset" href=""></a></h1>
+
+        <p class="uk-article-meta" id="articleDate"></p>
+
+        <p id="articleDescription"></p>
+
+        <div class="uk-grid-small uk-child-width-auto" uk-grid>
+            <div>
+                <span uk-icon="heart" id="articleFavorite"></span>
+            </div>
+            <div>
+                <a class="uk-button uk-button-text" href="#" id="articleReadMore">Read more</a>
+            </div>
+        </div>
+    </article>
+</template>
+
+<script>
+    var articleTemplateDoc = document.currentScript.ownerDocument;
+    class Article extends HTMLElement {
+        constructor(item) {
+            super();
+            const articleTemplate = articleTemplateDoc.querySelector("#article-template");
+            let articleInstance = articleTemplate.content.cloneNode(true);
+
+            let titleSel = item.querySelector("title");
+            articleInstance.querySelector("#articleHeading a").innerHTML = $(titleSel).text();
+
+            let linkSel = item.querySelector("link");
+            articleInstance.querySelector("#articleHeading a").href = $(linkSel).text();
+
+            let dateSel = item.querySelector("pubDate");
+            articleInstance.querySelector("#articleDate").innerHTML = $(dateSel).text();
+
+            let descriptionSel = item.querySelector("description");
+            articleInstance.querySelector("#articleDescription").innerHTML = $(descriptionSel).text();
+
+            articleInstance.querySelector("#articleReadMore").href = $(linkSel).text();
+
+            // Favorite OnClick Listener
+            var favoriteButton = articleInstance.querySelector("#articleFavorite");
+            favoriteButton.addEventListener("click", this.favoriteArticle);
+
+            return articleInstance;
+        }
+
+        favoriteArticle(event) {
+            console.log("favorited");
+        }
+    }
+
+    customElements.define('my-article', Article);
+</script>

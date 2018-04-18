@@ -1,0 +1,49 @@
+<template id="news-feed-template">
+    <div class="uk-container">
+        <h1 class="uk-heading-divider uk-heading-primary" id="articlesHeaders">News</h1>
+        <div class="uk-position-z-index uk-padding" id="articles">
+        </div>
+    </div>    
+</template>
+
+<script>
+    var newsFeedTemplateDoc = document.currentScript.ownerDocument;
+    class NewsFeed extends HTMLElement {
+        constructor(type) {
+            super();
+            this.type = type;
+        }
+
+        createArticles() {
+            const template = newsFeedTemplateDoc.querySelector("#news-feed-template");
+            const instance = template.content.cloneNode(true);
+
+            instance.querySelector("#articlesHeaders").innerHTML = this.type + " " + instance.querySelector("#articlesHeaders").innerHTML
+
+            for (let item of this.feedData) {
+                let article = new Article(item);
+                instance.querySelector("#articles").appendChild(article);
+            }
+
+            this.appendChild(instance);
+        }
+
+        connectedCallback() {
+            let type = this.type;
+
+            if (type === "Top News") {
+                type = "";
+            } else {
+                type = type + "/"
+            }
+
+            $.get("http://www.espn.com/espn/rss/" + type + "news")
+                .done((data) => {
+                    this.feedData = data.querySelectorAll("item");
+                    this.createArticles();
+                });
+        }        
+    }
+
+    customElements.define('news-feed', NewsFeed);
+</script>

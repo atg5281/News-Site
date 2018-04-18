@@ -1,7 +1,7 @@
 <template id="login-template">
     <div class="uk-text-center uk-grid uk-position-center">
         <div class="uk-width-auto">
-            <div class="uk-card uk-card-default uk-card-body">
+            <div class="uk-card uk-card-default uk-card-body" id="loginCard">
                 <form id="loginForm">
                     <div class="uk-margin" id="invalidInput"></div>
                     <div class="uk-margin">
@@ -17,13 +17,40 @@
                         </div>
                     </div>
                     <div class="uk-margin uk-flex">
-                        <button id="addAccount" class="uk-button uk-button-default" >Add Account</button>
-                        <button id="login" class="uk-button uk-button-default uk-margin-auto-left">Login</button>
+                        <button id="login" class="uk-button uk-button-default">Login</button>
+                        <button id="addAccount" class="uk-button uk-button-default uk-margin-auto-left" >Add Account</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
+</template>
+
+<template id="add-account-template">
+    <form class="uk-form-stacked" id="addAccountForm">
+        <div class="uk-margin" id="invalidInput"></div>
+        <div class="uk-margin">
+            <label class="uk-form-label">Username</label>
+            <div class="uk-form-controls">
+                <input class="uk-input" id="add-account-username" type="text">
+            </div>
+        </div>
+        <div class="uk-margin">
+            <label class="uk-form-label">Password</label>
+            <div class="uk-form-controls">
+                <input class="uk-input" id="add-account-password" type="password">
+            </div>
+        </div>
+        <div class="uk-margin">
+            <label class="uk-form-label">Confirm Password</label>
+            <div class="uk-form-controls">
+                <input class="uk-input" id="add-account-confirm-password" type="password">
+            </div>
+        </div>
+        <div class="uk-margin uk-flex">
+            <button id="createAccount" class="uk-button uk-button-default uk-width-1-1" >Create Account</button>
+        </div>
+    </form>
 </template>
 
 <template id="invalid-form-template">
@@ -33,15 +60,32 @@
     </div>
 </template>
 
+<template id="invalid-account-password-template">
+    <div class="uk-alert-danger" uk-alert>
+        <a class="uk-alert-close" uk-close></a>
+        <p>Passwords Do Not Match</p>
+    </div>
+</template>
+
+<template id="invalid-account-name-template">
+    <div class="uk-alert-danger" uk-alert>
+        <a class="uk-alert-close" uk-close></a>
+        <p>Account Name Already Taken</p>
+    </div>
+</template>
+
 <script>
     var loginDoc = document.currentScript.ownerDocument;
     class Login extends HTMLElement {
         constructor() {
             super();
-
             const template = loginDoc.querySelector("#login-template");
             const instance = template.content.cloneNode(true);
             this.appendChild(instance);
+
+            $("#login").on("click", (event) => {
+                let temp = 0;
+            })
 
             $("#loginForm").on("submit", (event) => {
                 event.preventDefault();
@@ -50,7 +94,7 @@
 
                 for (var index in this.accounts) {
                     let account = this.accounts[index];
-                    if (account.username === username && account.password === password) {
+                    if (account.username === username && account.password === account.password) {
                         var main = new Main();
                         $(".app").append(main);
                         this.closeLogin();
@@ -59,17 +103,82 @@
                         const instance = template.content.cloneNode(true);
                         $("#invalidInput").append(instance);
                     }
+                }              
+            });
+
+            $('#addAccount').bind('click', {loginPage:this}, this.addAccount);
+        }
+
+        addAccount(event) {
+            event.preventDefault();
+            const template = loginDoc.querySelector("#add-account-template");
+            const instance = template.content.cloneNode(true);
+            $("#loginForm").remove();
+            $("#loginCard").append(instance);
+
+            $('#addAccountForm').bind('submit', {loginPage:event.data.loginPage}, event.data.loginPage.addAccountForm);
+        }
+
+        addAccountForm(event) {
+            event.preventDefault();
+            const username = event.target.querySelector("#add-account-username");
+            const password = event.target.querySelector("#add-account-password");
+            const confirmPassword = event.target.querySelector("#add-account-confirm-password");
+            if (password.value !== confirmPassword.value) {
+                $(password).addClass("uk-form-danger");
+                $(confirmPassword).addClass("uk-form-danger");
+                const passwordTemplate = loginDoc.querySelector("#invalid-account-password-template");
+                const passwordInstance = passwordTemplate.content.cloneNode(true);
+                $("#invalidInput").append(passwordInstance);
+                return;
+            }
+
+            for (var index in event.data.loginPage.accounts) {
+                let account = event.data.loginPage.accounts[index];
+                if (account.username === username.value) {
+                    const accountTemplate = loginDoc.querySelector("#invalid-account-name-template");
+                    const accountInstance = accountTemplate.content.cloneNode(true);
+                    $("#invalidInput").append(accountInstance);
+                    return;
+                } else if (index == event.data.loginPage.accounts.length - 1) {
+                    event.data.loginPage.addAccountCall(username.value, password.value, event.data.loginPage.accounts);
+                    var main = new Main();
+                    $(".app").append(main);
+                    event.data.loginPage.closeLogin();
+                }
+            }
+        }
+
+        addAccountCall(username, password, accounts) {
+            var returnAccounts = {"accounts" : accounts};
+            returnAccounts.accounts.push({"username": username, "password" : password});
+
+            $.ajax({
+                type: "POST",
+                dataType : 'json',
+                url: 'accounts/add_account.php',
+                data: returnAccounts,
+                success: function () {
+                    alert("Thanks!"); 
+                },
+                failure: function() {
+                    alert("Error!");
                 }
             });
         }
 
         connectedCallback() {
-            fetch('accounts/accounts.json')
-                .then((response) => {
-                    response.json().then((data) => {
-                            this.accounts = data;
-                        });
-                });
+            $.ajax({
+                url : 'accounts/accounts.json',
+                dataType : 'json',
+                context : this,
+                success : function (data) {
+                    this.accounts = data;
+                },
+                error : function (data) {
+                    console.log("Unable to load account information");
+                }
+            });
         }
 
         closeLogin() {

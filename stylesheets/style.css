@@ -10,8 +10,43 @@ body {
     font-family: sans-serif;
 }
 
+.app {
+	background-color: #bbdefb;
+}
+
+nav-bar {
+	z-index: 2;
+}
+
+news-feed {
+	padding-top: 80px;
+}
+
+nav .navbarFilter {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    padding: 0 15px;
+}
+
 nav .logo {
     width: 190px;
     height: 80px;
-    margin-left: auto;
+}
+
+nav .visit {
+	margin-left: auto;
+	text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+#articleFavorite {
+	cursor: pointer;
+}
+
+#articleFavorite.active {
+	
 }

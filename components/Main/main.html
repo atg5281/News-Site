@@ -1,5 +1,5 @@
 <template id="main-template">
-    <nav-bar></nav-bar>
+    <nav-bar class="uk-display-block uk-position-fixed uk-width-1-1"></nav-bar>
 </template>
 
 <script>
@@ -10,6 +10,11 @@
 
             const template = mainTemplateDoc.querySelector("#main-template");
             const instance = template.content.cloneNode(true);
+
+            var newsFeed = new NewsFeed("Top News");
+            $(newsFeed).addClass("uk-display-block");
+            instance.append(newsFeed);
+
             this.appendChild(instance);
         }
     }
